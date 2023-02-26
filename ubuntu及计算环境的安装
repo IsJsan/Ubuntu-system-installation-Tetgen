@@ -1,0 +1,109 @@
+ubuntu双系统的安装:
+	参考视频https://www.bilibili.com/video/BV1554y1n7zv?spm_id_from=333.999.0.0
+
+
+基础命令解释:
+
+	root权限方法:
+	输入现账号的密码(密码看不到,输入后回车即可)
+	输入root账号的密码,两次
+	出现root@something即成功
+	exit退出root(su进入root)
+	(sudo是暂时得到root权限)
+
+	切换文件夹:
+	cd /home/something/是切换到某文件夹
+	cd ..是返回上一层文件夹
+
+注意:	大小写有区别,不能混用
+
+
+计算环境的配置(metis,openblas,lapack,mumps)
+
+	先退出root模式
+	切换到合适的目录后
+	sudo apt update更新源
+
+安装gfortran:
+	sudo apt-get install gfortran
+
+
+安装GNU(GCC,G++)
+	sudo apt install build-essential
+	gcc --version
+	g++ --version
+	
+安装cmake
+	sudo apt-get install cmake
+	cmake --version
+	
+安装tetgen
+	sudo apt-get install tetgen
+	
+解压安装包(metis,openblas,lapack,mumps)
+	将安装包拷贝到合适文件夹,切换至该路径下
+	tar -xf metis-5.1.0.tar
+	回到文件夹下查看是否成功
+	其余三个同理
+	
+注意接下来的安装顺序为metis,openblas,lapack,mumps
+
+安装metis:
+参考其文件夹里的install.txt
+   	打开include文件夹里的metis.h,修改32为64(一般来说都是64位系统,如果是32位就32即可)
+	命令行窗口的路径切换至刚刚解压的metis的文件夹下
+	make config
+	make
+	sudo make install
+	
+安装openblas:
+	命令行窗口的路径切换至刚刚解压的openblas的文件夹下
+	make
+	(结束后其询问是否装library,选择不装)
+	
+安装lapack:
+	参考readme.txt
+	命令行窗口的路径切换至刚刚解压的lapack的文件夹下
+	复制make.inc.example,粘贴到当前路径,并修改名字为make.inc
+	编辑Makefile文件内容，把
+	lib: lapacklib tmglib
+	#lib: blaslib variants lapacklib tmglib
+	改为：
+	#lib: lapacklib tmglib
+	lib: blaslib variants lapacklib tmglib
+	(如果makefile在命令行打开的话,注意如下操作:按i进入插入模式,然后按照以上内容修改,再按键盘左上角Esc键退出插入模式,输入:光标会回到底下一行,输入wq命令回车,即保存退出,可以再打开makefile检查一下)
+	
+	sudo make
+	
+安装mumps:
+	参考readme.txt与install.txt
+	#？命令行窗口的路径切换至刚刚解压的lapack的文件夹下    #好像有问题
+	  修改为： 命令行窗口的路径切换至刚刚解压的mumps 的文件夹下
+	复制Make.inc到当前路径下并改名为Makefile.inc
+	打开Makefile.inc,修改内容
+	修改63行64行metis的路径(metis存放的路径)
+		如:LMETISDIR = /home/ccj/en/metis-5.1.0/build/Linux-x86_64/libmetis
+		   IMETIS    = -I//home/ccj/en/metis-5.1.0/build/Linux-x86_64//include
+	72行删除#号
+		如:LMETIS    = -L$(LMETISDIR) -lmetis
+		   #LMETIS    = -L$(LMETISDIR) -lparmetis -lmetis
+	80行加Dmetis
+		如:ORDERINGSF  = -Dpord -Dmetis
+	103行改为
+		CC      = gcc
+	105行改为
+		FC      = gfortran
+	107行改为
+		FC      = gfortran
+	
+	根据install,readme等检查是否有错
+	也可比对我的Makefile.inc
+	
+	进行编译:
+	make all
+	
+	
+集合lib文件备份到所需要运行的程序处
+
+
+完成!
